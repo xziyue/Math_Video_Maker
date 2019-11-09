@@ -77,6 +77,27 @@ def _get_frame_title_dict():
 
     return result
 
+def _get_section_marker_dict():
+    result = dict()
+
+    result['sec_chn_title'] = _get_default_text_entity(
+        text='标题',
+        style='chn',
+        x=150,
+        y=frame_size[1] - 8,
+        size=6
+    )
+
+    result['sec_eng_title'] = _get_default_text_entity(
+        text='Title',
+        style='eng',
+        x=150,
+        y=RelativeY('sec_chn_title', -8),
+        size=3
+    )
+
+    return result
+
 
 class Frame():
 
@@ -100,15 +121,15 @@ def get_math_frame():
         text=r'$p(x)=\frac{1}{\sqrt{2\pi\sigma^2}}e^{-\frac{(x-\mu)^2}{2\sigma^2}}$',
         style='eng',
         x=h_center,
-        y=RelativeY('eng_title', -180),
-        size=16
+        y=RelativeY('eng_title', -230),
+        size=18
     )
 
     result['chn_caption'] = _get_default_text_entity(
         text=r'正态分布',
         style='chn',
         x=h_center,
-        y=frame_size[1] - 800,
+        y=frame_size[1] - 750,
         size=15
     )
 
@@ -116,7 +137,7 @@ def get_math_frame():
         text='Normal Distribution',
         style='eng',
         x=h_center,
-        y=RelativeY('chn_caption', -30),
+        y=RelativeY('chn_caption', -40),
         size=13
     )
 
@@ -132,7 +153,7 @@ def get_two_column_chn_eng_frame_default_style():
         'line_sep' : -50,
         'chn_size' : 15,
         'eng_size' : 13,
-        'init_y_offset' : -150
+        'init_y_offset' : -200
     }
 
 def get_two_column_chn_eng_frame(chn_title, eng_title, col1, col2, style):

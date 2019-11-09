@@ -1,4 +1,5 @@
 from PIL import Image
+from skimage.color import rgba2rgb, rgb2gray
 from source.call_tex import render_pdflatex, render_xelatex
 from source.tex_style import get_chinese_style_kaiti, get_english_style
 from multiprocessing.pool import ThreadPool
@@ -36,8 +37,22 @@ def _resolve_relative_y(frame, renderedObj, target, mode=None):
         else:
             raise AttributeError('unknown mode: ' + mode)
 
+
+# crop text images to the bounding box
+def _crop_text_image(img):
+    # convert to gray scale
+    grayImg = rgb2gray(rgba2rgb(img))
+    pxLoc = np.where(grayImg[:, :] < 0.95)
+    min1, max1 = pxLoc[0].min() - 1, pxLoc[0].max() + 1
+    min2, max2 = pxLoc[1].min() - 1, pxLoc[1].max() + 1
+    min1, min2 = max(min1, 0), max(min2, 0)
+    max1, max2 = min(max1, img.shape[0] - 1), min(max2, img.shape[1] - 1)
+    return img[slice(min1, max1), slice(min2, max2), :]
+    #return grayImg
+
 def _generate_text_task(key, func, data):
-    return (key, func(data))
+    img = func(data)
+    return (key, _crop_text_image(img))
 
 def render_one(frame, content_alpha=1.0):
     renderedObj = dict()
@@ -45,6 +60,9 @@ def render_one(frame, content_alpha=1.0):
     taskQueue = []
     for key, val in frame.items():
         if val['type']=='text':
+            if len(val['text']) == 0:
+                renderedObj[key] = np.zeros((1, 1, 4), np.uint8)
+                continue
             if val['style'] == 'eng':
                 texData = get_english_style(val['text'], val['size'])
                 taskQueue.append((key, render_pdflatex, texData))
@@ -64,6 +82,8 @@ def render_one(frame, content_alpha=1.0):
     textResult = threadPool.starmap(_generate_text_task, taskQueue)
     for key, img in textResult:
         assert img is not None
+        #plt.imshow(img)
+        #plt.show()
         renderedObj[key] = Image.fromarray(img)
 
     # resolve relative positions

@@ -12,6 +12,7 @@
 
 
 ## TODOs
+- Trim text images
 - Get frame durations from ASS subtitle files 
 
 ## Requirements
