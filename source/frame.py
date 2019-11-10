@@ -56,8 +56,8 @@ def _get_frame_title_dict():
         text='帧测试',
         style='chn',
         x=h_center,
-        y=frame_size[1] - 40,
-        size=13
+        y=frame_size[1] - 20,
+        size=10
     )
 
     result['title_sep'] = _get_default_line_entity(
@@ -72,7 +72,7 @@ def _get_frame_title_dict():
         style='eng',
         x=h_center,
         y=RelativeY('title_sep', -10),
-        size=11
+        size=9
     )
 
     return result
@@ -146,10 +146,10 @@ def get_math_frame():
     return frame
 
 
-def get_two_column_chn_eng_frame_default_style():
+def get_multicol_frame_default_style():
     return {
-        'left_right_margin' : 600,
-        'mid_margin' : 30,
+        'left_right_margin' : 500,
+        'mid_margin' : 60,
         'line_sep' : -50,
         'chn_size' : 15,
         'eng_size' : 13,
@@ -208,4 +208,65 @@ def get_two_column_chn_eng_frame(chn_title, eng_title, col1, col2, style):
 
 
 
+def get_three_column_eng_chn_eng_frame(chn_title, eng_title, col1, col2, col3, style):
+    assert len(col1) == len(col2) == len(col3)
+    result = _get_frame_title_dict()
+    result['chn_title']['text'] = chn_title
+    result['eng_title']['text'] = eng_title
 
+    sideMargin = style['left_right_margin']
+    midMargin = style['mid_margin']
+
+    linewidth = frame_size[0] - 2 * sideMargin
+    columnwidth = (linewidth - 2 * midMargin) // 3
+    assert columnwidth > 0
+
+    columnCenters = []
+    now_x = sideMargin
+    for i in range(3):
+        columnCenters.append((2 * now_x + columnwidth) // 2)
+        now_x += (columnwidth + midMargin)
+
+
+    # put in the anchor entity
+    result['col2_0'] = _get_default_text_entity(
+        text=col2[0],
+        style='chn',
+        x=columnCenters[1],
+        y = RelativeY('eng_title', style['init_y_offset']),
+        size=style['chn_size']
+    )
+
+    for i in range(1, len(col2)):
+        entity_name = 'col2_{}'.format(i)
+        result[entity_name] = _get_default_text_entity(
+            text=col2[i],
+            style='chn',
+            x=columnCenters[1],
+            y=RelativeY('col2_{}'.format(i - 1), style['line_sep']),
+            size=style['chn_size']
+        )
+
+    for i in range(len(col1)):
+        entity_name = 'col1_{}'.format(i)
+        result[entity_name] = _get_default_text_entity(
+            text=col1[i],
+            style='eng',
+            x = columnCenters[0],
+            y = RelativeY('col2_{}'.format(i), 0, 'center'),
+            size=style['eng_size']
+        )
+
+    for i in range(len(col3)):
+        entity_name = 'col3_{}'.format(i)
+        result[entity_name] = _get_default_text_entity(
+            text=col3[i],
+            style='eng',
+            x = columnCenters[2],
+            y = RelativeY('col2_{}'.format(i), 0, 'center'),
+            size=style['eng_size']
+        )
+
+    frame = Frame()
+    frame.entities = result
+    return frame

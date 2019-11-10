@@ -47,10 +47,17 @@ def quick_math_frame(chn_title, eng_title, eqn, chn_caption, eng_caption):
     return frame
 
 def quick_two_column_chn_eng_frame(chn_title, eng_title, col1, col2):
-    frame = get_two_column_chn_eng_frame(chn_title, eng_title, col1, col2, get_two_column_chn_eng_frame_default_style())
+    frame = get_two_column_chn_eng_frame(chn_title, eng_title, col1, col2, get_multicol_frame_default_style())
     condition_add_section_marker(frame)
     return frame
 
+def quick_three_column_eng_chn_eng_frame(chn_title, eng_title, col1, col2, col3):
+    style = get_multicol_frame_default_style()
+    style['left_right_margin'] = 400
+    style['mid_margin'] = 80
+    frame = get_three_column_eng_chn_eng_frame(chn_title, eng_title, col1, col2, col3, style)
+    condition_add_section_marker(frame)
+    return frame
 
 def quick_title_frame(chn_title, eng_title):
     frame = Frame()
